@@ -1,8 +1,9 @@
-package com.example.project_ap;
+package com.example.snakeandladder;
 
 
 
 import javafx.fxml.FXML;
+import javafx.scene.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -10,6 +11,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.transform.Translate;
+import org.controlsfx.control.spreadsheet.Grid;
+
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Random;
@@ -17,6 +20,7 @@ import java.util.Random;
 
 public class HelloController {
     public ImageView diceImage;
+    public GridPane gridPane;
     @FXML
     private ImageView token1;
 
@@ -28,11 +32,26 @@ public class HelloController {
     int i;
     Token player1;
     Token player2;
+    HashMap<Integer, int[]> sandl;
 
     public void initialize(){
         player1 = new Token(token1);
         player2 = new Token(token2);
         i = 1;
+        sandl = new HashMap<Integer, int[]>();
+        sandl.put(4, new int[]{8, 4,25});
+        sandl.put(8, new int[]{7, 9,31});
+        sandl.put(27, new int[]{6, 5,46});
+        sandl.put(42, new int[]{3, 0,80});
+        sandl.put(58, new int[]{3, 3,77});
+        sandl.put(69, new int[]{1, 7,93});
+        sandl.put(99, new int[]{3, 0,80});
+        sandl.put(95, new int[]{3, 4,76});
+        sandl.put(94, new int[]{5, 7,53});
+        sandl.put(90, new int[]{6, 9,50});
+        sandl.put(55, new int[]{9, 2,18});
+        sandl.put(63, new int[]{5, 0,60});
+        sandl.put(43, new int[]{8, 1,22});
 
     }
 
@@ -40,24 +59,39 @@ public class HelloController {
         Random rand = new Random();
         int rand_int1 = rand.nextInt(6) + 1;
         num.setText(String.valueOf(rand_int1));
-        if(i%2 !=0 && ((player1.getCount() + rand_int1) <= 100))
+
+        if(i%2 !=0 && ((player1.getCount() + rand_int1) <= 100)) {
             player1.moveLftRit(rand_int1);
-        if(i%2 == 0 && ((player2.getCount() + rand_int1) <= 100))
-            player2.moveLftRit(rand_int1);
-        i++;
-        int[] place = {4,8,27,42,58,69,99,95,94,90,55,63,43};
-        for (int i =0;i<place.length;i++){
-            if (player1.getCount() ==place[i]){
-                method2 ();
-            }
-            if(player2.getCount()==place[i]){
-                method2 ();
+            gridPane.getChildren().remove(token1);
+
+            if(sandl.containsKey(player1.getCount())){
+                player1.setCurrRow(sandl.get(player1.getCount())[0]);
+                player1.setCurrCol(sandl.get(player1.getCount())[1]);
+                player1.setCount(sandl.get(player1.getCount())[2]);
+                System.out.println("Blue");
+                System.out.println("CurrRow = " + player1.getCurrRow());
+                System.out.println("CurrCol = " + player1.getCurrCol());
+                System.out.println();
+
             }
         }
-
-
+        if(i%2 == 0 && ((player2.getCount() + rand_int1) <= 100)) {
+            player2.moveLftRit(rand_int1);
+            if(sandl.containsKey(player2.getCount())){
+                player2.setCurrRow(sandl.get(player2.getCount())[0]);
+                player2.setCurrCol(sandl.get(player2.getCount())[1]);
+                player2.setCount(sandl.get(player2.getCount())[2]);
+                System.out.println("Red");
+                System.out.println("CurrRow = " + player2.getCurrRow());
+                System.out.println("CurrCol = " + player2.getCurrCol());
+                System.out.println();
+            }
+        }
+        i++;
 
     }
+
+    /*
     public void movement1 (){
 
         if (player1.getCount()==4){
@@ -141,6 +175,8 @@ public class HelloController {
         }
 
     }
+
+
     public void movement2 (){
 
         if (player2.getCount()==4){
@@ -224,21 +260,12 @@ public class HelloController {
         }
 
     }
+
+
+
     public void method2(){
-        HashMap<Integer, int[]> sandl = new HashMap<Integer, int[]>();
-        sandl.put(4, new int[]{8, 4});
-        sandl.put(8, new int[]{7, 9});
-        sandl.put(27, new int[]{6, 5});
-        sandl.put(42, new int[]{3, 0});
-        sandl.put(58, new int[]{3, 3});
-        sandl.put(69, new int[]{1, 7});
-        sandl.put(99, new int[]{3, 0});
-        sandl.put(95, new int[]{3, 4});
-        sandl.put(94, new int[]{5, 7});
-        sandl.put(90, new int[]{6, 9});
-        sandl.put(55, new int[]{9, 3});
-        sandl.put(63, new int[]{8, 1});
-        sandl.put(43, new int[]{8, 2});
+
+
         for (Integer key : sandl.keySet()){
             if (player1.getCount()==key){
                 GridPane.setRowIndex(this.token1, sandl.get(key)[0]);
@@ -250,6 +277,8 @@ public class HelloController {
             }
         }
     }
+
+     */
 
 }
 
@@ -356,6 +385,14 @@ class Token{
         return currCol;
     }
 
+    public void setCurrRow(int row){
+        currRow = row;
+        GridPane.setRowIndex(this.token, currRow);
+    }
+    public void setCurrCol(int col){
+        currCol = col;
+        GridPane.setColumnIndex(this.token, currCol);
+    }
     public int getCount(){
         return count;
     }
@@ -365,7 +402,7 @@ class Token{
     }
 
 
-    }
+}
 
 
 
