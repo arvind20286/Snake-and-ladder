@@ -2,7 +2,9 @@ package com.example.snakeandladder;
 
 
 
+import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
+import javafx.geometry.Bounds;
 import javafx.scene.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -10,9 +12,14 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.transform.Translate;
+import javafx.util.Duration;
 import org.controlsfx.control.spreadsheet.Grid;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Random;
@@ -20,7 +27,17 @@ import java.util.Random;
 
 public class HelloController {
     public ImageView diceImage;
+    public GridPane frontGridPane;
     public GridPane gridPane;
+    public ImageView player22;
+    public ImageView player1img;
+    public ImageView player11;
+    public ImageView player2img;
+    public ImageView win;
+    public Pane bottomPane;
+    public Pane frontPane;
+    public ImageView backgroungImg;
+    public Label playerNum;
     @FXML
     private ImageView token1;
 
@@ -31,13 +48,32 @@ public class HelloController {
     public Label num;
     int i;
     Token player1;
+    @FXML
     Token player2;
     HashMap<Integer, int[]> sandl;
 
     public void initialize(){
-        player1 = new Token(token1);
-        player2 = new Token(token2);
+        player1 = new Token(token1, "violet");
+        player2 = new Token(token2, "red");
         i = 1;
+        /*
+        sandl = new HashMap<Integer, int[]>();
+        snake = new HashMap<Integer, int[]>();
+        snake.put(99, new int[]{3, 0,80});
+        snake.put(95, new int[]{3, 4,76});
+        snake.put(94, new int[]{5, 7,53});
+        snake.put(90, new int[]{6, 9,50});
+        snake.put(55, new int[]{9, 2,18});
+        snake.put(63, new int[]{5, 0,60});
+        snake.put(43, new int[]{8, 1,22});
+        sandl.put(4, new int[]{8, 4,25});
+        sandl.put(8, new int[]{7, 9,31});
+        sandl.put(27, new int[]{6, 5,46});
+        sandl.put(42, new int[]{3, 0,80});
+        sandl.put(58, new int[]{3, 3,77});
+        sandl.put(69, new int[]{1, 7,93});
+
+         */
         sandl = new HashMap<Integer, int[]>();
         sandl.put(4, new int[]{8, 4,25});
         sandl.put(8, new int[]{7, 9,31});
@@ -52,233 +88,152 @@ public class HelloController {
         sandl.put(55, new int[]{9, 2,18});
         sandl.put(63, new int[]{5, 0,60});
         sandl.put(43, new int[]{8, 1,22});
-
     }
 
-    public void diceMove(MouseEvent mouseEvent) {
+    public void diceMove(MouseEvent mouseEvent) throws FileNotFoundException {
+
         Random rand = new Random();
         int rand_int1 = rand.nextInt(6) + 1;
         num.setText(String.valueOf(rand_int1));
 
-        if(i%2 !=0 && ((player1.getCount() + rand_int1) <= 100)) {
+        if(i%2 !=0) {
+            player2img.setVisible(false);
+            player22.setVisible(true);
+            player1img.setVisible(true);
+            player11.setVisible(false);
+            if(player1.getCount() == 0){
+                if(rand_int1 == 1) {
+                    player1.setCurrRow(10);
+                    player1.setCount(1);
+                }
+                player2img.setVisible(true);
+                player22.setVisible(false);
+                player1img.setVisible(false);
+                player11.setVisible(true);
+                i++;
+                return;
+            }
+            if((player1.getCount() + rand_int1) <= 100){
             player1.moveLftRit(rand_int1);
-            gridPane.getChildren().remove(token1);
-
             if(sandl.containsKey(player1.getCount())){
-                player1.setCurrRow(sandl.get(player1.getCount())[0]);
-                player1.setCurrCol(sandl.get(player1.getCount())[1]);
-                player1.setCount(sandl.get(player1.getCount())[2]);
+                animate(sandl.get(player1.getCount())[1], sandl.get(player1.getCount())[0], sandl.get(player1.getCount())[2],player1);
                 System.out.println("Blue");
                 System.out.println("CurrRow = " + player1.getCurrRow());
                 System.out.println("CurrCol = " + player1.getCurrCol());
                 System.out.println();
 
             }
+
         }
-        if(i%2 == 0 && ((player2.getCount() + rand_int1) <= 100)) {
-            player2.moveLftRit(rand_int1);
-            if(sandl.containsKey(player2.getCount())){
-                player2.setCurrRow(sandl.get(player2.getCount())[0]);
-                player2.setCurrCol(sandl.get(player2.getCount())[1]);
-                player2.setCount(sandl.get(player2.getCount())[2]);
-                System.out.println("Red");
-                System.out.println("CurrRow = " + player2.getCurrRow());
-                System.out.println("CurrCol = " + player2.getCurrCol());
-                System.out.println();
+            player2img.setVisible(true);
+            player22.setVisible(false);
+            player1img.setVisible(false);
+            player11.setVisible(true);
+        }
+        if(i%2 == 0) {
+            player2img.setVisible(true);
+            player22.setVisible(false);
+            player1img.setVisible(false);
+            player11.setVisible(true);
+            if(player2.getCount() == 0 ){
+                if(rand_int1 == 1) {
+                    player2.setCurrRow(10);
+                    player2.setCount(1);
+                }
+                player2img.setVisible(false);
+                player22.setVisible(true);
+                player1img.setVisible(true);
+                player11.setVisible(false);
+                i++;
+                return;
             }
+            if((player2.getCount() + rand_int1) <= 100) {
+
+                player2.moveLftRit(rand_int1);
+
+
+                if (sandl.containsKey(player2.getCount())) {
+                    animate(sandl.get(player2.getCount())[1], sandl.get(player2.getCount())[0], sandl.get(player2.getCount())[2], player2);
+                    System.out.println("Red");
+                    System.out.println("CurrRow = " + player2.getCurrRow());
+                    System.out.println("CurrCol = " + player2.getCurrCol());
+                    System.out.println();
+                }
+
+
+
+            }
+            player2img.setVisible(false);
+            player22.setVisible(true);
+            player1img.setVisible(true);
+            player11.setVisible(false);
+
+            }
+        if(player1.getCount() == 100){
+            bottomPane.getChildren().remove(frontGridPane);
+            bottomPane.getChildren().remove(frontPane);
+            bottomPane.getChildren().remove(backgroungImg);
+            bottomPane.getChildren().remove(player1img);
+            bottomPane.getChildren().remove(player2img);
+            bottomPane.getChildren().remove(player11);
+            bottomPane.getChildren().remove(player22);
+            bottomPane.getChildren().remove(dice);
+            playerNum.setText("Player 1");
+            return;
+
+
+        }
+        if(player2.getCount() == 100){
+            bottomPane.getChildren().remove(frontGridPane);
+            bottomPane.getChildren().remove(frontPane);
+            bottomPane.getChildren().remove(backgroungImg);
+            bottomPane.getChildren().remove(player1img);
+            bottomPane.getChildren().remove(player2img);
+            bottomPane.getChildren().remove(player11);
+            bottomPane.getChildren().remove(player22);
+            bottomPane.getChildren().remove(dice);
+            playerNum.setText("Player 2");
+            return;
         }
         i++;
 
-    }
-
-    /*
-    public void movement1 (){
-
-        if (player1.getCount()==4){
-            player1.setCount(25);
-            GridPane.setRowIndex(this.token1, 8);
-            GridPane.setColumnIndex(this.token1, 4);
 
 
-        }
 
-        if (player1.getCount()==8){
-            player1.setCount(31);
-            GridPane.setRowIndex(this.token1, 7);
-            GridPane.setColumnIndex(this.token1, 9);
-
-        }
-        if (player1.getCount()==27){
-            player1.setCount(46);
-            GridPane.setRowIndex(this.token1, 6);
-            GridPane.setColumnIndex(this.token1, 5);
-
-        }
-        if (player1.getCount()==42){
-            player1.setCount(80);
-            GridPane.setRowIndex(this.token1, 3);
-            GridPane.setColumnIndex(this.token1, 0);
-        }
-        if (player1.getCount()==58){
-            player1.setCount(77);
-            GridPane.setRowIndex(this.token1, 3);
-            GridPane.setColumnIndex(this.token1, 3);
-
-        }
-        if (player1.getCount()==69){
-            player1.setCount(93);
-            GridPane.setRowIndex(this.token1, 1);
-            GridPane.setColumnIndex(this.token1, 7);
-
-        }
-        if (player1.getCount()==99){
-            player1.setCount(80);
-            GridPane.setRowIndex(this.token1, 3);
-            GridPane.setColumnIndex(this.token1, 0);
-
-        }
-        if (player1.getCount()==95){
-            player1.setCount(76);
-            GridPane.setRowIndex(this.token1, 3);
-            GridPane.setColumnIndex(this.token1, 4);
-
-        }
-        if (player1.getCount()==94){
-            player1.setCount(53);
-            GridPane.setRowIndex(this.token1, 5);
-            GridPane.setColumnIndex(this.token1, 7);
-
-        }
-        if (player1.getCount()==90){
-            player1.setCount(50);
-            GridPane.setRowIndex(this.token1, 6);
-            GridPane.setColumnIndex(this.token1, 9);
-
-        }
-        if (player1.getCount()==55){
-            player1.setCount(18);
-            GridPane.setRowIndex(this.token1, 9);
-            GridPane.setColumnIndex(this.token1, 3);
-
-        }
-        if (player1.getCount()==63){
-            player1.setCount(60);
-            GridPane.setRowIndex(this.token1, 8);
-            GridPane.setColumnIndex(this.token1, 1);
-
-        }
-        if (player1.getCount()==43){
-            player1.setCount(22);
-            GridPane.setRowIndex(this.token1, 8);
-            GridPane.setColumnIndex(this.token1, 2);
-
-        }
 
     }
 
+    public void animate(int col, int row, int count, Token player){
+        Bounds bounds1 = frontGridPane.getCellBounds(player.getCurrCol(), player.getCurrRow());
+        Bounds bounds2 = frontGridPane.getCellBounds(col,row);
+        System.out.println(bounds2);
+        System.out.println(bounds1);
+        double x = bounds2.getMaxX() - bounds1.getMaxX();
+        double y = bounds2.getMaxY() - bounds1.getMaxY();
+        System.out.println(x);
+        System.out.println(y);
 
-    public void movement2 (){
-
-        if (player2.getCount()==4){
-            player2.setCount(25);
-            GridPane.setRowIndex(this.token2, 8);
-            GridPane.setColumnIndex(this.token2, 4);
 
 
-        }
+        //apply translation to x,y of new location
+        TranslateTransition translateTransition = new TranslateTransition();
+        translateTransition.setDuration(Duration.seconds(1));
+        translateTransition.setToX(x);
+        translateTransition.setToY(y);
+        translateTransition.setNode(player.token);
+        translateTransition.play();
+        translateTransition.setOnFinished(e->{
+            frontGridPane.getChildren().remove(player.token);
+            player.token.setTranslateX(0);player.token.setTranslateY(0);
+            frontGridPane.add(player.token, col, row);
+            player.setCurrRow(row);
+            player.setCurrCol(col);
+            player.setCount(count);
+            System.out.println(player.getCurrCol());
+            System.out.println(player.getCurrRow());
 
-        if (player2.getCount()==8){
-            player2.setCount(31);
-            GridPane.setRowIndex(this.token2, 7);
-            GridPane.setColumnIndex(this.token2, 9);
-
-        }
-        if (player2.getCount()==27){
-            player2.setCount(46);
-            GridPane.setRowIndex(this.token2, 6);
-            GridPane.setColumnIndex(this.token2, 5);
-
-        }
-        if (player2.getCount()==42){
-            player2.setCount(80);
-            GridPane.setRowIndex(this.token2, 3);
-            GridPane.setColumnIndex(this.token2, 0);
-        }
-        if (player2.getCount()==58){
-            player2.setCount(77);
-            GridPane.setRowIndex(this.token2, 3);
-            GridPane.setColumnIndex(this.token2, 3);
-
-        }
-        if (player2.getCount()==69){
-            player2.setCount(93);
-            GridPane.setRowIndex(this.token2, 1);
-            GridPane.setColumnIndex(this.token2, 7);
-
-        }
-        if (player2.getCount()==99){
-            player2.setCount(80);
-            GridPane.setRowIndex(this.token2, 3);
-            GridPane.setColumnIndex(this.token2, 0);
-
-        }
-        if (player2.getCount()==95){
-            player2.setCount(76);
-            GridPane.setRowIndex(this.token2, 3);
-            GridPane.setColumnIndex(this.token2, 4);
-
-        }
-        if (player2.getCount()==94){
-            player2.setCount(53);
-            GridPane.setRowIndex(this.token2, 5);
-            GridPane.setColumnIndex(this.token2, 7);
-
-        }
-        if (player2.getCount()==90){
-            player2.setCount(50);
-            GridPane.setRowIndex(this.token2, 6);
-            GridPane.setColumnIndex(this.token2, 9);
-
-        }
-        if (player2.getCount()==55){
-            player2.setCount(18);
-            GridPane.setRowIndex(this.token2, 9);
-            GridPane.setColumnIndex(this.token2, 3);
-
-        }
-        if (player2.getCount()==63){
-            player2.setCount(60);
-            GridPane.setRowIndex(this.token2, 8);
-            GridPane.setColumnIndex(this.token2, 1);
-
-        }
-        if (player2.getCount()==43){
-            player2.setCount(22);
-            GridPane.setRowIndex(this.token2, 8);
-            GridPane.setColumnIndex(this.token2, 2);
-
-        }
-
+        });
     }
-
-
-
-    public void method2(){
-
-
-        for (Integer key : sandl.keySet()){
-            if (player1.getCount()==key){
-                GridPane.setRowIndex(this.token1, sandl.get(key)[0]);
-                GridPane.setColumnIndex(this.token1, sandl.get(key)[1]);
-            }
-            if (player2.getCount()==key){
-                GridPane.setRowIndex(this.token2, sandl.get(key)[0]);
-                GridPane.setColumnIndex(this.token2, sandl.get(key)[1]);
-            }
-        }
-    }
-
-     */
 
 }
 
@@ -286,22 +241,26 @@ class Token{
     private int count;
     private int currRow;
     private int currCol;
-    private ImageView token;
+    ImageView token;
+    private String colour;
+    GridPane gridPane;
 
-    public Token(ImageView token){
-        this.count = 1;
+    public Token(ImageView token, String colour){
+        this.count = 0;
         this.token = token;
-        GridPane.setRowIndex(this.token, 10);
-        currRow = 10;
+        GridPane.setRowIndex(this.token, 11);
+        currRow = 11;
         GridPane.setColumnIndex(this.token, 0);
         currCol = 0;
         if(GridPane.getColumnIndex(this.token) == null)
             currCol = 0;
         else
             currCol = GridPane.getColumnIndex(this.token);
+        this.colour = colour;
     }
 
     public void moveLftRit(int steps){
+        System.out.println(colour);
         System.out.println("Steps = " + steps);
         int stepsTaken = 0;
         System.out.println("StepsTaken = " + stepsTaken);
